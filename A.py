@@ -1,18 +1,25 @@
+''' BerSu Ball Problem '''
+
+
 def main():
-    arr = []
     n = int(input())
-    arr.extend([int(x) for x in input().split()])
+    boys = [int(x) for x in input().split()]
+    m = int(input())
+    girls = [int(x) for x in input().split()]
 
-    arr.sort()
+    boys.sort()
+    girls.sort()
 
-    output = ""
-    for i in range(len(arr) - 1):
-        output += str(arr[i]) + " "
+    count = 0
+    for i in range(len(boys)):
+        for j in range(len(girls)):
+            if (abs(boys[i] - girls[j])) <= 1:
+                count += 1
+                girls[j] = 1000
+                break
 
-    output += str(arr[-1])
-
-    print(output)
+    print(count)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
