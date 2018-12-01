@@ -10,30 +10,43 @@ def dijkstra(edges, f, t):
     for l, r, c, money in edges:
         g[l].append((c, money, r))
 
-    q, seen, mins = [(0, 0, f, ())], set(), {f: 0}
+    q, seen, mins, mins_money = [(0, 0, f, ())], set(), {f: 0}, {f: 0}
     while q:
+        pprint(mins_money)
+
         (cost, money, v1, path) = heappop(q)
         if v1 not in seen:
             seen.add(v1)
             path = (v1, path)
             if v1 == t:
-                return (cost, path)
+                return (cost, money, path)
 
-            for c, money, v2 in g.get(v1, ()):
+            for c, mon, v2 in g.get(v1, ()):
                 if v2 in seen:
                     continue
                 prev = mins.get(v2, None)
                 next = cost + c
+
+                prev_money = mins_money.get(v2, None)
+                next_money = money + mon
+
                 if prev is None or next < prev:
                     mins[v2] = next
-                    heappush(q, (next, money, v2, path))
+                    mins_money[v2] = next_money
+                    heappush(q, (next, next_money, v2, path))
+
+                elif prev_money is not None and next == prev and\
+                        next_money < prev_money:
+                    # desempatar con el money
+                    mins[v2] = next
+                    mins_money[v2] = next_money
+                    heappush(q, (next, next_money, v2, path))
 
     return float("inf")
 
 
 def main():
     # init graph
-    graph = Graph()
     n, m = (int(x) for x in input().split(' '))
     print(n, m)
 
@@ -49,7 +62,7 @@ def main():
 
     pprint(edges)
 
-    # dijkstra(edges, 1)
+    print(dijkstra(edges, 1, 2))
 
 
 if __name__ == '__main__':
