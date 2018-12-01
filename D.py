@@ -2,24 +2,24 @@
 
 from collections import defaultdict
 from heapq import heappop, heappush
-from pprint import pprint
 
 
-def dijkstra(edges, f, t):
+def dijkstra(edges, f):
     g = defaultdict(list)
     for l, r, c, money in edges:
         g[l].append((c, money, r))
 
     q, seen, mins, mins_money = [(0, 0, f, ())], set(), {f: 0}, {f: 0}
     while q:
-        pprint(mins_money)
+        # pprint(mins_money)
 
         (cost, money, v1, path) = heappop(q)
         if v1 not in seen:
             seen.add(v1)
             path = (v1, path)
-            if v1 == t:
-                return (cost, money, path)
+
+            # if v1 == t:
+            #     return (cost, money, path)
 
             for c, mon, v2 in g.get(v1, ()):
                 if v2 in seen:
@@ -42,13 +42,14 @@ def dijkstra(edges, f, t):
                     mins_money[v2] = next_money
                     heappush(q, (next, next_money, v2, path))
 
-    return float("inf")
+    return max([v for k, v in mins_money.items()])
+
+    # return float("inf")
 
 
 def main():
     # init graph
     n, m = (int(x) for x in input().split(' '))
-    print(n, m)
 
     edges = []
 
@@ -58,11 +59,9 @@ def main():
         edges.append((from_node, to_node, distance, cost))
         edges.append((to_node, from_node, distance, cost))
 
-        print(from_node, to_node, distance, cost)
+    # pprint(edges)
 
-    pprint(edges)
-
-    print(dijkstra(edges, 1, 2))
+    print(dijkstra(edges, 1))
 
 
 if __name__ == '__main__':
