@@ -1,67 +1,77 @@
-''' Highway Decomission '''
-
-from collections import defaultdict
-from heapq import heappop, heappush
+from queue import PriorityQueue
 
 
-def dijkstra(edges, f):
-    g = defaultdict(list)
-    for l, r, c, money in edges:
-        g[l].append((c, money, r))
+class Edge:
+    def __init__(self, to, length, cost):
+        self.to = to
+        self.length = length
+        self.cost = cost
 
-    q, seen, mins, mins_money = [(0, 0, f, ())], set(), {f: 0}, {f: 0}
-    while q:
-        # pprint(mins_money)
+    def __lt__(self, other):
+        if self.length == other.length:
+            return self.cost < other.cost
+        return self.length < other.length
 
-        (cost, money, v1, path) = heappop(q)
-        if v1 not in seen:
-            seen.add(v1)
-            path = (v1, path)
+    def __repr__(self):
+        return "Edge: to {}, l: {}, c: {}".format(self.to, self.length, self.cost)
 
-            # if v1 == t:
-            #     return (cost, money, path)
 
-            for c, mon, v2 in g.get(v1, ()):
-                if v2 in seen:
-                    continue
-                prev = mins.get(v2, None)
-                next = cost + c
-
-                prev_money = mins_money.get(v2, None)
-                next_money = money + mon
-
-                if prev is None or next < prev:
-                    mins[v2] = next
-                    mins_money[v2] = next_money
-                    heappush(q, (next, next_money, v2, path))
-
-                elif prev_money is not None and next == prev and\
-                        next_money < prev_money:
-                    # desempatar con el money
-                    mins[v2] = next
-                    mins_money[v2] = next_money
-                    heappush(q, (next, next_money, v2, path))
-
-    return max([v for k, v in mins_money.items()])
-
-    # return float("inf")
+def my_cmp(edge_1, edge_2):
+    if (edge_1 < edge_2):
+        # edge 1 has greater value, ie, more expensive
+        return 1
+    if (edge_2 < edge_1):
+        return -1
+    return 0
 
 
 def main():
     # init graph
     n, m = (int(x) for x in input().split(' '))
 
-    edges = []
+    # list of lists of edges
+    g = [[] for i in range(n)]
 
     for i in range(m):
         from_node, to_node, distance, cost = (int(x) for x in input().split(' '))
+        from_node -= 1
+        to_node -= 1
 
-        edges.append((from_node, to_node, distance, cost))
-        edges.append((to_node, from_node, distance, cost))
+        g[from_node].append(Edge(to_node, distance, cost))
+        g[to_node].append(Edge(from_node, distance, cost))
 
-    # pprint(edges)
+    # priority queue with edges
+    q = PriorityQueue()
+    q.put(Edge(0, 0, 0))
 
-    print(dijkstra(edges, 1))
+    # list of n best edges
+    best = [Edge(0, float("inf"), float("inf")) for i in range(n)]
+    best[0] = Edge(0, 0, 0)
+
+    # list of cost
+    cost = [0 for i in range(n)]
+
+    while not q.empty():  # V times
+        s = q.get()  # log E
+
+        node = s.to
+
+        if my_cmp(s, best[node]) == -1:
+            continue
+
+        for e in g[node]:  # E times
+            to = e.to
+            extra = Edge(to, s.length + e.length, e.cost)
+            if my_cmp(extra, best[to]) == 1:
+                best[to] = extra
+                cost[to] = e.cost
+                q.put(extra)  # Log E
+
+    total = 0
+    for i in range(n):
+        total += cost[i]
+
+    print(total)
 
 
 if __name__ == '__main__':
