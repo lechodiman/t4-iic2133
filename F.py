@@ -6,6 +6,7 @@ def main():
     wordMap = {}
 
     q = int(input())
+
     while (q > 0):
         old, new = (x for x in input().split())
 

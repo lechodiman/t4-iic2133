@@ -11,6 +11,7 @@ def main():
     girls.sort()
 
     count = 0
+
     for i in range(len(boys)):
         for j in range(len(girls)):
             if (abs(boys[i] - girls[j])) <= 1:
